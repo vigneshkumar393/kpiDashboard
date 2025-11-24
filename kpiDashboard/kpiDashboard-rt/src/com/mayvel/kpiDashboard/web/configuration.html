@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration</title>
+    <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; margin:0; padding:20px; }
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow:0 4px 20px rgba(0,0,0,0.1); position: relative; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .logout-btn { position: absolute; top: 20px; right: 20px; padding: 10px 15px; background:#f44336; color:white; border:none; border-radius:5px; cursor:pointer; }
+    .logout-btn:hover { background:#d32f2f; }
+    #searchBox { width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc; }
+    select { width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
+    .selected-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .point-chip { background: #4CAF50; color:white; padding:5px 10px; border-radius:5px; display:flex; align-items:center; }
+    .point-chip button { background:none; border:none; color:white; margin-left:5px; cursor:pointer; font-weight:bold; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Configuration</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+
+    <input type="text" id="searchBox" placeholder="Search points...">
+    <select id="pointsDropdown" multiple size="10"></select>
+    <div class="selected-points" id="selectedPoints"></div>
+</div>
+
+<script>
+let token = localStorage.getItem('token');
+if (!token) {
+    // if not logged in, redirect to login
+    window.location.href = '/';
+}
+
+const selectedPointsMap = new Map();
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        window.location.href = '/';
+    }
+}
+
+async function fetchPoints() {
+    try {
+        const res = await fetch('/getPoints', {
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            populateDropdown(data.points);
+        } else {
+            alert('Error fetching points: ' + (data.message || 'Unknown error'));
+        }
+    } catch(err) {
+        alert('Server error');
+    }
+}
+
+function populateDropdown(points) {
+    const dropdown = document.getElementById('pointsDropdown');
+    dropdown.innerHTML = '';
+    points.forEach(point => {
+        const option = document.createElement('option');
+        option.value = point.pointName;
+        option.textContent = `${point.pointName} (${point.type})`;
+        dropdown.appendChild(option);
+    });
+
+    dropdown.addEventListener('change', () => {
+        const selectedOptions = Array.from(dropdown.selectedOptions);
+        selectedPointsMap.clear();
+        selectedOptions.forEach(opt => selectedPointsMap.set(opt.value, opt.textContent));
+        renderSelectedPoints();
+    });
+
+    // search functionality
+    document.getElementById('searchBox').addEventListener('input', e => {
+        const filter = e.target.value.toLowerCase();
+        Array.from(dropdown.options).forEach(opt => {
+            opt.style.display = opt.textContent.toLowerCase().includes(filter) ? 'block' : 'none';
+        });
+    });
+}
+
+function renderSelectedPoints() {
+    const container = document.getElementById('selectedPoints');
+    container.innerHTML = '';
+    selectedPointsMap.forEach((label, value) => {
+        const chip = document.createElement('div');
+        chip.className = 'point-chip';
+        chip.textContent = label;
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '×';
+        removeBtn.onclick = () => {
+            selectedPointsMap.delete(value);
+            const dropdown = document.getElementById('pointsDropdown');
+            Array.from(dropdown.options).forEach(opt => {
+                if (opt.value === value) opt.selected = false;
+            });
+            renderSelectedPoints();
+        };
+        chip.appendChild(removeBtn);
+        container.appendChild(chip);
+    });
+}
+
+// Fetch points immediately
+fetchPoints();
+</script>
+</body>
+</html>

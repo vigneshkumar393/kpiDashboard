@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bajaObjectGraph version="4.0" reversibleEncodingKeySource="none" reversibleEncodingValidator="[null.1]=" >
+
+    <p m="b=baja" t="b:UnrestrictedFolder">
+        <!--        <p m="dtl=myHttpServer" t="dtl:HttpServer" n="HttpServer" />-->
+
+        <!-- Your custom HTTP server service -->
+        <p m="dtl=kpiDashboard" t="dtl:RestApiServerService" n="RestApiServer"/>
+    </p>
+
+</bajaObjectGraph>
