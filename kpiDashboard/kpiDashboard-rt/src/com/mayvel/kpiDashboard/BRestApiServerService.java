@@ -367,6 +367,7 @@ public class BRestApiServerService extends BAbstractService
         LoginRoute.registerRoutes(server);
         ConfigurationRoute.registerRoutes(server);
         CertificateUploadRoute.registerRoutes(server,this);
+        DashboardRoute.registerRoutes(server,this);
 
         httpsServer.setExecutor(null);
         httpsServer.start();
@@ -444,6 +445,8 @@ public class BRestApiServerService extends BAbstractService
         ConfigurationRoute.registerRoutes(server);
 
         CertificateUploadRoute.registerRoutes(server,this);
+
+        DashboardRoute.registerRoutes(server,this);
 
         server.setExecutor(null);
         server.start();

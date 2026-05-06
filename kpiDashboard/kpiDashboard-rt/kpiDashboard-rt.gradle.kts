@@ -58,6 +58,16 @@ dependencies {
   // ✅ Required for BNNetwork, BDevice, BDeviceFolder, etc.
   api(":ndriver-rt")
 
+  // Niagara module dependencies
+  api(":alarm-rt")
+  api(":baja")
+  api(":control-rt")
+  api(":driver-rt")
+  api(":ndriver-rt")
+  api(":bql-rt")
+  api(":history-rt")
+  api(":schedule-rt")
+
   // Test Niagara module dependencies
   moduleTestImplementation(":test-wb")
 }
